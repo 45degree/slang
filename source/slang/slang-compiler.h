@@ -26,6 +26,7 @@
 #include "slang-serialize-ir-types.h"
 #include "slang-syntax.h"
 #include "slang.h"
+#include <chrono>
 
 namespace Slang
 {
