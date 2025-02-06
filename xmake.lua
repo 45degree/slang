@@ -65,7 +65,26 @@ target("slang", function()
 		"source/slang/slang-ast-val.h",
 		{ rule = "slang-reflect" }
 	)
-	add_rules("slang-lookup-tables")
+
+	on_load(function(target)
+		target:add(
+			"files",
+			path.join(target:autogendir(), "slang-lookup-generator/slang-lookup-GLSLstd450.cpp"),
+			{ always_added = true }
+		)
+	end)
+
+	before_build(function(target)
+		-- 导入task模块
+		import("core.project.task")
+
+		-- 运行hello任务
+		task.run(
+			"generate-slang-lookup-tables",
+			{},
+			path.join(target:autogendir(), "slang-lookup-generator/slang-lookup-GLSLstd450.cpp")
+		)
+	end)
 
 	-- on_load(function(target)
 	-- 	---@type Package
@@ -74,7 +93,7 @@ target("slang", function()
 	-- 	print(include_dir)
 	-- end)
 
-	add_packages("spirv-headers")
+	add_packages("spirv-headers", "miniz", "lz4", "unordered_dense")
 
 	-- add_files("source/slang/*.cpp")
 end)
@@ -142,6 +161,34 @@ rule("slang-reflect", function()
 		-- batchcmds:compile(generator_files, objectfile)
 
 		batchcmds:add_depfiles(sourcefile, target:dep("slang-cpp-extractor"):targetfile())
+	end)
+end)
+
+task("generate-slang-lookup-tables", function()
+	---@param generate_file string
+	on_run(function(generate_file)
+		import("core.project.project")
+
+		---@type Package
+		local spirv = project.required_packages()["spirv-headers"]
+		local spirv_include_dir = path.join(spirv:installdir(), "include")
+		local input_json = path.join(spirv_include_dir, "spirv/unified1/extinst.glsl.std.450.grammar.json")
+
+		---@type Target
+		local slang_lookup_tables = project.target("slang-lookup-generator")
+		-- local base_dir = path.join(slang_lookup_tables:autogendir(), "slang-lookup-tables")
+		-- local generate_file = path.join(base_dir, "slang-lookup-GLSLstd450.cpp")
+
+		local cmd_opts = { input_json }
+		table.insert(cmd_opts, generate_file)
+		table.insert(cmd_opts, "GLSLstd450")
+		table.insert(cmd_opts, "GLSLstd450")
+		table.insert(cmd_opts, "spirv/unified1/GLSL.std.450.h")
+
+		os.mkdir(path.directory(generate_file))
+		os.vrunv(slang_lookup_tables:targetfile(), cmd_opts)
+		--
+		-- target:add("files", path.absolute(generate_file))
 	end)
 end)
 
