@@ -37,13 +37,20 @@ end)
 target("slang", function()
 	if is_config("shared", true) then
 		set_kind("shared")
+    add_defines("SLANG_DYNAMIC")
+    add_defines("SLANG_DYNAMIC_EXPORT")
 	else
 		set_kind("static")
+    add_defines("SLANG_STATIC")
 	end
 	add_deps("slang-cpp-extractor", "slang-capability-generator", "slang-lookup-generator")
-	add_includedirs("slang")
+	add_includedirs("slang", "$(projectdir)/build")
 
 	add_files("slang/*.cpp")
+	add_files("slang-record-replay/record/*.cpp")
+	add_files("slang-record-replay/util/*.cpp")
+  add_rules("slang-reflect")
+  add_configfiles("$(projectdir)/slang-tag-version.h.in")
 
 	add_files(
 		"slang/slang-ast-support-types.h",
@@ -106,6 +113,9 @@ end)
 rule("slang-reflect", function()
 	on_load(function(target)
 		target:add("deps", "slang-cpp-extractor")
+		local base_dir = path.join(target:autogendir(), "ast-reflect")
+    print(base_dir)
+		target:add("includedirs", base_dir)
 	end)
 
 	---comment
@@ -116,7 +126,6 @@ rule("slang-reflect", function()
 	on_buildcmd_files(function(target, batchcmds, sourcebatch, opt)
 		local base_dir = path.join(target:autogendir(), "ast-reflect")
 
-		target:add("includedirs", base_dir)
 		-- table.insert(target:objectfiles(), objectfile)
 
 		local cmd_opts = sourcebatch.sourcefiles
