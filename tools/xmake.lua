@@ -4,6 +4,7 @@ target("slang-capability-generator", function()
 
 	add_deps("compiler-core")
 	add_packages("miniz", "lz4", "unordered_dense")
+  set_policy("build.fence", true)
 end)
 
 target("slang-cpp-parser", function()
@@ -12,6 +13,7 @@ target("slang-cpp-parser", function()
 
 	add_deps("compiler-core")
 	add_packages("miniz", "lz4", "unordered_dense")
+  set_policy("build.fence", true)
 end)
 
 target("slang-cpp-extractor", function()
@@ -22,6 +24,7 @@ target("slang-cpp-extractor", function()
 
 	add_deps("compiler-core", "slang-cpp-parser")
 	add_packages("miniz", "lz4", "unordered_dense")
+  set_policy("build.fence", true)
 end)
 
 target("slang-embed", function()
@@ -30,6 +33,7 @@ target("slang-embed", function()
 
 	add_deps("compiler-core", "core")
 	add_packages("miniz", "lz4", "unordered_dense")
+  set_policy("build.fence", true)
 end)
 
 target("slang-generate", function()
@@ -38,6 +42,7 @@ target("slang-generate", function()
 
 	add_deps("compiler-core", "core")
 	add_packages("miniz", "lz4", "unordered_dense")
+  set_policy("build.fence", true)
 end)
 
 target("slang-lookup-generator", function()
@@ -46,6 +51,7 @@ target("slang-lookup-generator", function()
 
 	add_deps("compiler-core", "core")
 	add_packages("miniz", "lz4", "unordered_dense")
+  set_policy("build.fence", true)
 end)
 
 target("slang-spirv-embed-generator", function()
@@ -54,4 +60,5 @@ target("slang-spirv-embed-generator", function()
 
 	add_deps("compiler-core", "core")
 	add_packages("miniz", "lz4", "unordered_dense", "spirv-headers")
+  set_policy("build.fence", true)
 end)
